@@ -57,6 +57,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
         _items[existingIndex].quantity++;
       });
       final existing = _items[existingIndex];
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -75,9 +76,26 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
   }
 
   void _deleteItem(int index) {
+    final removedItem = _items[index];
+
     setState(() {
       _items.removeAt(index);
     });
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${removedItem.name} removed'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              _items.insert(index, removedItem);
+            });
+          },
+        ),
+      ),
+    );
   }
 
   void _incrementQuantity(int index) {
