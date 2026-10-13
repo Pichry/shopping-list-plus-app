@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'details_screen.dart';
+
 void main() {
   runApp(const ShoppingListApp());
 }
@@ -18,11 +20,20 @@ class ShoppingListApp extends StatelessWidget {
 }
 
 class Item {
-  Item({required this.name, this.bought = false, this.quantity = 1});
+  Item({
+    required this.name,
+    this.bought = false,
+    this.quantity = 1,
+    this.note = '',
+    this.category = 'Food',
+  });
 
-  final String name;
+  // No longer final: the details screen renames items in place.
+  String name;
   bool bought;
   int quantity;
+  String note;
+  String category;
 }
 
 class ShoppingListPage extends StatefulWidget {
@@ -146,10 +157,24 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     );
   }
 
+  void _openDetails(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailsScreen(item: _items[index]),
+      ),
+    ).then((_) => setState(() {}));
+  }
+
   Widget _buildRow(int index) {
     final item = _items[index];
+    final subtitle = item.note.isEmpty
+        ? item.category
+        : '${item.category} · ${item.note}';
+
     return ListTile(
       onTap: () => _toggleBought(index),
+      onLongPress: () => _openDetails(index),
       title: Text(
         item.name,
         style: TextStyle(
@@ -159,6 +184,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
           color: item.bought ? Colors.grey : null,
         ),
       ),
+      subtitle: Text(subtitle),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
