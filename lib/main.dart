@@ -61,6 +61,26 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     });
   }
 
+  Widget _buildRow(int index) {
+    final item = _items[index];
+    return ListTile(
+      onTap: () => _toggleBought(index),
+      title: Text(
+        item.name,
+        style: TextStyle(
+          decoration: item.bought
+              ? TextDecoration.lineThrough
+              : TextDecoration.none,
+          color: item.bought ? Colors.grey : null,
+        ),
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete_outline),
+        onPressed: () => _deleteItem(index),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,28 +107,12 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: ListView.builder(
-                itemCount: _items.length,
-                itemBuilder: (context, index) {
-                  final item = _items[index];
-                  return ListTile(
-                    onTap: () => _toggleBought(index),
-                    title: Text(
-                      item.name,
-                      style: TextStyle(
-                        decoration: item.bought
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        color: item.bought ? Colors.grey : null,
-                      ),
+              child: _items.isEmpty
+                  ? const Center(child: Text('Your list is empty'))
+                  : ListView.builder(
+                      itemCount: _items.length,
+                      itemBuilder: (context, index) => _buildRow(index),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () => _deleteItem(index),
-                    ),
-                  );
-                },
-              ),
             ),
           ],
         ),
