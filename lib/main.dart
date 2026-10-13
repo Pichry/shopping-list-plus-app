@@ -44,9 +44,27 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    setState(() {
-      _items.add(Item(name: text));
-    });
+    final existingIndex = _items.indexWhere(
+      (item) => item.name.toLowerCase() == text.toLowerCase(),
+    );
+
+    if (existingIndex == -1) {
+      setState(() {
+        _items.add(Item(name: text));
+      });
+    } else {
+      setState(() {
+        _items[existingIndex].quantity++;
+      });
+      final existing = _items[existingIndex];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${existing.name} is already on the list: now ×${existing.quantity}',
+          ),
+        ),
+      );
+    }
     _controller.clear();
   }
 
