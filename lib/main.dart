@@ -18,10 +18,11 @@ class ShoppingListApp extends StatelessWidget {
 }
 
 class Item {
-  Item({required this.name, this.bought = false});
+  Item({required this.name, this.bought = false, this.quantity = 1});
 
   final String name;
   bool bought;
+  int quantity;
 }
 
 class ShoppingListPage extends StatefulWidget {
@@ -61,6 +62,20 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     });
   }
 
+  void _incrementQuantity(int index) {
+    setState(() {
+      _items[index].quantity++;
+    });
+  }
+
+  void _decrementQuantity(int index) {
+    setState(() {
+      if (_items[index].quantity > 1) {
+        _items[index].quantity--;
+      }
+    });
+  }
+
   Widget _buildRow(int index) {
     final item = _items[index];
     return ListTile(
@@ -74,9 +89,23 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
           color: item.bought ? Colors.grey : null,
         ),
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline),
-        onPressed: () => _deleteItem(index),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.remove_circle_outline),
+            onPressed: () => _decrementQuantity(index),
+          ),
+          Text('${item.quantity}'),
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: () => _incrementQuantity(index),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () => _deleteItem(index),
+          ),
+        ],
       ),
     );
   }
