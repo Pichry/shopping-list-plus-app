@@ -39,6 +39,24 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     Item(name: 'Bread'),
     Item(name: 'Rice'),
   ];
+  String _filter = 'All';
+
+  List<int> get _visibleIndices {
+    final all = List<int>.generate(_items.length, (i) => i);
+    switch (_filter) {
+      case 'To buy':
+        return all.where((i) => !_items[i].bought).toList();
+      case 'Bought':
+        return all.where((i) => _items[i].bought).toList();
+      default:
+        // Bought items always sit at the bottom, both groups keeping
+        // their original order.
+        return [
+          ...all.where((i) => !_items[i].bought),
+          ...all.where((i) => _items[i].bought),
+        ];
+    }
+  }
 
   void _addItem() {
     final text = _controller.text.trim();
@@ -112,6 +130,22 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     });
   }
 
+  Widget _buildList() {
+    if (_items.isEmpty) {
+      return const Center(child: Text('Your list is empty'));
+    }
+
+    final visible = _visibleIndices;
+    if (visible.isEmpty) {
+      return const Center(child: Text('Nothing here'));
+    }
+
+    return ListView.builder(
+      itemCount: visible.length,
+      itemBuilder: (context, i) => _buildRow(visible[i]),
+    );
+  }
+
   Widget _buildRow(int index) {
     final item = _items[index];
     return ListTile(
@@ -171,14 +205,18 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
               ],
             ),
             const SizedBox(height: 12),
-            Expanded(
-              child: _items.isEmpty
-                  ? const Center(child: Text('Your list is empty'))
-                  : ListView.builder(
-                      itemCount: _items.length,
-                      itemBuilder: (context, index) => _buildRow(index),
-                    ),
+            Wrap(
+              spacing: 8,
+              children: ['All', 'To buy', 'Bought'].map((label) {
+                return ChoiceChip(
+                  label: Text(label),
+                  selected: _filter == label,
+                  onSelected: (_) => setState(() => _filter = label),
+                );
+              }).toList(),
             ),
+            const SizedBox(height: 12),
+            Expanded(child: _buildList()),
           ],
         ),
       ),
